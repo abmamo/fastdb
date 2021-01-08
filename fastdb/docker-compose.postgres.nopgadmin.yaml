@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  postgresdb:
+    image: postgres:12.2
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+    - db-data:/var/lib/postgresql/data
+    ports:
+    - 5432:5432
+volumes:
+  db-data: null
+  pgadmin-data: null
