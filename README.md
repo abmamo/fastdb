@@ -4,7 +4,7 @@ set up & configure mock MySQL & Postgres databases using python + docker (requir
 ## quickstarnt
 install fastdb
 ```
-  pip install fastdb @ https://github.com/abmamo/fastdb/archive/v0.0.1.tar.gz
+  pip install 'fastdb @ https://github.com/abmamo/fastdb/archive/v0.0.1.tar.gz'
 ```
 start mock databases in docker containers
 ```
