@@ -21,7 +21,7 @@ setup(
       license='MIT',
       packages=find_packages(exclude=("tests",)),
       include_package_data=True,
-      package_data={'fastdb': ['*.yml']},
+      package_data={'fastdb': ['*.yaml']},
       install_requires=[
           "oyaml==1.0"
           ],
