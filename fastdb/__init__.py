@@ -43,10 +43,10 @@ class MockPostgres(ShellExecutor):
         if config_path is None:
             if ui:
                 # use config with pgadmin
-                self.config_path = Path(__file__).parent.absolute().joinpath("docker-compose.postgres.yml")
+                self.config_path = Path(__file__).parent.absolute().joinpath("docker-compose.postgres.yaml")
             else:
                 # use config without pgadmin
-                self.config_path = Path(__file__).parent.absolute().joinpath("docker-compose.postgres.nopgadmin.yml")
+                self.config_path = Path(__file__).parent.absolute().joinpath("docker-compose.postgres.nopgadmin.yaml")
         else:
             # use user defined config
             self.config_path = config_path
@@ -167,10 +167,10 @@ class MockMySQL(ShellExecutor):
         if config_path is None:
             if ui:
                 # use config with adminer
-                self.config_path = Path(__file__).parent.absolute().joinpath("docker-compose.mysql.yml")
+                self.config_path = Path(__file__).parent.absolute().joinpath("docker-compose.mysql.yaml")
             else:
                 # use config without adminer
-                self.config_path = Path(__file__).parent.absolute().joinpath("docker-compose.mysql.noadminer.yml")
+                self.config_path = Path(__file__).parent.absolute().joinpath("docker-compose.mysql.noadminer.yaml")
         else:
             # use user defined config
             self.config_path = config_path

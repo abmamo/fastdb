@@ -6,18 +6,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: roottestpassword
       MYSQL_DATABASE: testdb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: testpassword
+      MYSQL_USER: fs2db
+      MYSQL_PASSWORD: fs2dbpassword
     ports:
       - 127.0.0.1:33061:3306
     volumes:
       - mysqldb_data:/var/lib/mysql
-  adminer:
-    image: adminer:latest
-    environment:
-      ADMINER_DEFAULT_SERVER: mysqldb
-    ports:
-      - 8080:8080
 
 volumes:
   mysqldb_data:
