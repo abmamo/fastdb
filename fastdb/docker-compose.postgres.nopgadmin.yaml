@@ -4,9 +4,9 @@ services:
     image: postgres:12.2
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: db
+      POSTGRES_USER: fastdb
+      POSTGRES_PASSWORD: fastdbpass
+      POSTGRES_DB: testdb
       PGDATA: /var/lib/postgresql/data
     volumes:
     - db-data:/var/lib/postgresql/data

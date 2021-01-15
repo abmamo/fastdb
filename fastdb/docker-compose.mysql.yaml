@@ -4,10 +4,10 @@ services:
     image: mysql:5.7
     command: --max_allowed_packet=32505856
     environment:
-      MYSQL_ROOT_PASSWORD: roottestpassword
+      MYSQL_ROOT_PASSWORD: fastdbrootpass
       MYSQL_DATABASE: testdb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: testpassword
+      MYSQL_USER: fastdb
+      MYSQL_PASSWORD: fastdbpass
     ports:
       - 127.0.0.1:33061:3306
     volumes:

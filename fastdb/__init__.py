@@ -4,7 +4,7 @@ from pathlib import Path
 # import I/O classes
 from fastdb.reader import YAMLReader
 from fastdb.writer import YAMLWriter
-from fastdb.utils import update_service_environment
+from fastdb.utils import update_service_environment, update_service_ports
 
 class ShellExecutor:
     """
@@ -107,11 +107,17 @@ class MockPostgres(ShellExecutor):
         if database is not None:
             # add to update data
             update_data["POSTGRES_DB"] = database
+        # if port is specified use that
+        if port is not None:
+            # update dict with user specified port
+            config_dict = update_service_ports(config_dict, "postgresdb", port)
         # if any update data found
         if update_data:
             # update dict with user specified data
             # otherwise use default values
             config_dict = update_service_environment(config_dict, "postgresdb", **update_data)
+        # if port specified use that otherwise generate unused new one
+        # update default names to fastdb fastdbpass testdb
         # file name for update docker compose file
         file_name = "docker-compose.postgres.updated.yaml"
         # dir to store docker compose file in
@@ -140,7 +146,7 @@ class MockPostgres(ShellExecutor):
         # keys
         conn_keys = ['host', 'port', 'docker_port']
         # build conn info with names
-        conn_info = {key:val for key, val in zip(conn_keys, conn_data)}
+        conn_info = {key: val for key, val in zip(conn_keys, conn_data)}
         # convert to DBAPI friendly dict format
         dsn = {
                 "host": conn_info["host"],
@@ -235,6 +241,10 @@ class MockMySQL(ShellExecutor):
         if root_password is not None:
             # add to update data
             update_data["MYSQL_ROOT_PASSWORD"] = root_password
+        # if port is specified use that
+        if port is not None:
+            # update dict with user specified port
+            config_dict = update_service_ports(config_dict, "mysqldb", port)
         # if any update data found
         if update_data:
             # update dict with user specified data
