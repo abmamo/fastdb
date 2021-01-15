@@ -138,12 +138,12 @@ class MockPostgres(ShellExecutor):
         # this is of the form host:port:docker_port
         conn_data = config_dict["services"]["postgresdb"]["ports"][0].split(":")
         # keys
-        conn_keys = ['port', 'docker_port']
+        conn_keys = ['host', 'port', 'docker_port']
         # build conn info with names
         conn_info = {key:val for key, val in zip(conn_keys, conn_data)}
         # convert to DBAPI friendly dict format
         dsn = {
-                "host": '127.0.0.1',
+                "host": conn_info["host"],
                 "port": int(conn_info["port"]),
                 "user": env_data["POSTGRES_USER"],
                 "password": env_data["POSTGRES_PASSWORD"],
