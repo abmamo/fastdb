@@ -4,11 +4,16 @@ from pathlib import Path
 # import I/O classes
 from fastdb.reader import YAMLReader
 from fastdb.writer import YAMLWriter
-from fastdb.utils import update_service_environment, update_service_ports
+# import networking classes
+from fastdb.utils import (
+    update_service_environment,
+    update_service_ports,
+    port_in_use
+)
 
 class ShellExecutor:
     """
-        python class to execute shell commands
+        class to execute shell commands
     """
     def exec(self, command):
         """
@@ -30,7 +35,33 @@ class ShellExecutor:
                 print(output.strip())
             rc = process.poll()
 
-class MockPostgres(ShellExecutor):
+class DockerExecutor:
+    """
+        class to execute docker related commands
+    """
+    def start(self, tail=False):
+        if tail:
+            command = "docker-compose -f %s up --build" % str(self.config_path)
+        else:
+            command = "docker-compose -f %s up -d --build" % str(self.config_path)
+        # display connection info
+        self.info()
+        # execute start command
+        self.exec(command)
+        # sleep
+        time.sleep(10)
+
+    def stop(self, keep_volumes=False):
+        if not keep_volumes:
+            # delete networks, volumes etc in addition to containers
+            command = "docker-compose -f %s down -v --remove-orphans" % str(self.config_path)
+        else:
+            # delete containers but keep networks, volumes etc
+            command = "docker-compose -f %s down" % str(self.config_path)
+        # execute stop command
+        self.exec(command)
+
+class MockPostgres(ShellExecutor, DockerExecutor):
     """
         python class to provide an interace to
         MySQL docker containers
@@ -51,28 +82,6 @@ class MockPostgres(ShellExecutor):
             # use user defined config
             self.config_path = config_path
 
-    def start(self, tail=False):
-        if tail:
-            command = "docker-compose -f %s up --build" % str(self.config_path)
-        else:
-            command = "docker-compose -f %s up -d --build" % str(self.config_path)
-        # display connection info
-        self.info()
-        # execute start command
-        self.exec(command)
-        # sleep
-        time.sleep(15)
-
-    def stop(self, keep_volumes=False):
-        if not keep_volumes:
-            # delete networks, volumes etc in addition to containers
-            command = "docker-compose -f %s down -v --remove-orphans" % str(self.config_path)
-        else:
-            # delete containers but keep networks, volumes etc
-            command = "docker-compose -f %s down" % str(self.config_path)
-        # execute stop command
-        self.exec(command)
-    
     def config(
             self,
             user=None,
@@ -92,7 +101,7 @@ class MockPostgres(ShellExecutor):
                 - root_password: passfor for root user
         """
         # get docker compose as dict
-        config_dict = YAMLReader(file_path=self.config_path).to_dict()
+        compose_dict = YAMLReader(file_path=self.config_path).to_dict()
         # dict to store update data
         update_data = {}
         # if user specified
@@ -107,15 +116,13 @@ class MockPostgres(ShellExecutor):
         if database is not None:
             # add to update data
             update_data["POSTGRES_DB"] = database
-        # if port is specified use that
-        if port is not None:
-            # update dict with user specified port
-            config_dict = update_service_ports(config_dict, "postgresdb", port)
         # if any update data found
         if update_data:
             # update dict with user specified data
             # otherwise use default values
-            config_dict = update_service_environment(config_dict, "postgresdb", **update_data)
+            compose_dict = update_service_environment(compose_dict, "postgresdb", **update_data)
+            # update dict with user specified port
+            compose_dict = update_service_ports(compose_dict, "postgresdb", port)
         # if port specified use that otherwise generate unused new one
         # update default names to fastdb fastdbpass testdb
         # file name for update docker compose file
@@ -123,7 +130,7 @@ class MockPostgres(ShellExecutor):
         # dir to store docker compose file in
         config_dir = Path(__file__).parent.absolute()
         # write to file
-        yaml_writer = YAMLWriter(d=config_dict).to_yaml(file_name=file_name, dir_path=config_dir)
+        yaml_writer = YAMLWriter(d=compose_dict).to_yaml(file_name=file_name, dir_path=config_dir)
         # get updated config file path
         updated_config_path = config_dir.joinpath(file_name)
         # update the current instances config path
@@ -137,12 +144,12 @@ class MockPostgres(ShellExecutor):
             compose file
         """
         # get docker compose file as dict
-        config_dict = YAMLReader(file_path=self.config_path).to_dict()
+        compose_dict = YAMLReader(file_path=self.config_path).to_dict()
         # get environment data from docker compose dict
-        env_data = config_dict["services"]["postgresdb"]["environment"]
+        env_data = compose_dict["services"]["postgresdb"]["environment"]
         # get connection data from docker compose dict
         # this is of the form host:port:docker_port
-        conn_data = config_dict["services"]["postgresdb"]["ports"][0].split(":")
+        conn_data = compose_dict["services"]["postgresdb"]["ports"][0].split(":")
         # keys
         conn_keys = ['host', 'port', 'docker_port']
         # build conn info with names
@@ -160,7 +167,7 @@ class MockPostgres(ShellExecutor):
         # return connection info as dict
         return dsn
 
-class MockMySQL(ShellExecutor):
+class MockMySQL(ShellExecutor, DockerExecutor):
     """
         python class to provide an interace to
         MySQL docker containers
@@ -180,28 +187,6 @@ class MockMySQL(ShellExecutor):
         else:
             # use user defined config
             self.config_path = config_path
-
-    def start(self, tail=False):
-        if tail:
-            command = "docker-compose -f %s up --build" % str(self.config_path)
-        else:
-            command = "docker-compose -f %s up -d --build" % str(self.config_path)
-        # display connection info
-        self.info()
-        # execute start command
-        self.exec(command)
-        # sleep
-        time.sleep(15)
-
-    def stop(self, keep_volumes=False):
-        if not keep_volumes:
-            # delete networks, volumes etc in addition to containers
-            command = "docker-compose -f %s down -v --remove-orphans" % str(self.config_path)
-        else:
-            # delete containers but keep networks, volumes etc
-            command = "docker-compose -f %s down" % str(self.config_path)
-        # execute stop command
-        self.exec(command)
     
     def config(
             self,
@@ -222,7 +207,7 @@ class MockMySQL(ShellExecutor):
                 - root_password: passfor for root user
         """
         # get docker compose as dict
-        config_dict = YAMLReader(file_path=self.config_path).to_dict()
+        compose_dict = YAMLReader(file_path=self.config_path).to_dict()
         # dict to store update data
         update_data = {}
         # if user specified
@@ -240,22 +225,20 @@ class MockMySQL(ShellExecutor):
         # if root password specified
         if root_password is not None:
             # add to update data
-            update_data["MYSQL_ROOT_PASSWORD"] = root_password
-        # if port is specified use that
-        if port is not None:
-            # update dict with user specified port
-            config_dict = update_service_ports(config_dict, "mysqldb", port)
+            update_data["MYSQL_ROOT_PASSWORD"] = root_password  
         # if any update data found
         if update_data:
             # update dict with user specified data
             # otherwise use default values
-            config_dict = update_service_environment(config_dict, "mysqldb", **update_data)
+            compose_dict = update_service_environment(compose_dict, "mysqldb", **update_data)
+            # update dict with user specified port
+            compose_dict = update_service_ports(compose_dict, "mysqldb", port)
         # file name for update docker compose file
         file_name = "docker-compose.mysql.updated.yaml"
         # dir to store docker compose file in
         config_dir = Path(__file__).parent.absolute()
         # write to file
-        yaml_writer = YAMLWriter(d=config_dict).to_yaml(file_name=file_name, dir_path=config_dir)
+        yaml_writer = YAMLWriter(d=compose_dict).to_yaml(file_name=file_name, dir_path=config_dir)
         # get updated config file path
         updated_config_path = config_dir.joinpath(file_name)
         # update the current instances config path
@@ -269,12 +252,12 @@ class MockMySQL(ShellExecutor):
             compose file
         """
         # get docker compose file as dict
-        config_dict = YAMLReader(file_path=self.config_path).to_dict()
+        compose_dict = YAMLReader(file_path=self.config_path).to_dict()
         # get environment data from docker compose dict
-        env_data = config_dict["services"]["mysqldb"]["environment"]
+        env_data = compose_dict["services"]["mysqldb"]["environment"]
         # get connection data from docker compose dict
         # this is of the form host:port:docker_port
-        conn_data = config_dict["services"]["mysqldb"]["ports"][0].split(":")
+        conn_data = compose_dict["services"]["mysqldb"]["ports"][0].split(":")
         # keys
         conn_keys = ['host', 'port', 'docker_port']
         # build conn info with names

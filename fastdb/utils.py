@@ -37,10 +37,18 @@ def update_service_ports(compose_dict, service_name, new_port=None, host="localh
     conn_data = compose_config["services"][service_name]["ports"].copy()[0]
     # split by : (its of the format host:host_port:docker_port)
     conn_data_split = conn_data.split(":")
-    # if port is in use
-    if port_in_use(new_port):
-        # generate new port
-        new_port = generate_port(host=host)
+    # check port data passed
+    if new_port is not None:
+        # if port is in use
+        if port_in_use(new_port):
+            # generate new port
+            new_port = generate_port(host=host)
+    # if port data not passed
+    else:
+        # if default port is in use
+        if port_in_use(conn_data_split[1]):
+            # generate new port
+            new_port = generate_port(host=host)
     # replace host port with new port
     conn_data_split[1] = str(new_port)
     # combine split conn data into docker compose format

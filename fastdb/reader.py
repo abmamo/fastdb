@@ -14,7 +14,9 @@ class YAMLReader:
         self.file_path = file_path
     
     def to_dict(self):
-        """return yaml file as dict"""
+        """
+            return yaml file as dict
+        """
         with open(self.file_path) as file:
             # FullLoader handles conversion
             file_dict = yaml.load(file, Loader=yaml.FullLoader)

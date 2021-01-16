@@ -30,7 +30,7 @@ class YAMLWriter:
             dir_path = Path(__file__).parent.absolute()
         # create full file path from file name & dir path
         file_path = dir_path.joinpath(file_name)
-        # open file
+        # open file using file path
         with open(file_path, 'w') as outfile:
-            # write
+            # write dict to yaml
             yaml.dump(self.d, outfile, default_flow_style=False)
