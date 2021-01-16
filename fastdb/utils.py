@@ -34,7 +34,7 @@ def update_service_ports(compose_dict, service_name, new_port=None, host="localh
                             being updated
     """
     # get conn data from docker compose file
-    conn_data = compose_config["services"][service_name]["ports"].copy()[0]
+    conn_data = compose_dict["services"][service_name]["ports"].copy()[0]
     # split by : (its of the format host:host_port:docker_port)
     conn_data_split = conn_data.split(":")
     # check port data passed
