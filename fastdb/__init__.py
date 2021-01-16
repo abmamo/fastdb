@@ -87,7 +87,7 @@ class MockPostgres(ShellExecutor, DockerExecutor):
             user=None,
             password=None,
             database=None,
-            port=None,
+            port=5432,
             root_password=None
         ):
         """
@@ -193,7 +193,7 @@ class MockMySQL(ShellExecutor, DockerExecutor):
             user=None,
             password=None,
             database=None,
-            port=None,
+            port=33061,
             root_password=None
         ):
         """

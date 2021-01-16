@@ -66,6 +66,10 @@ def port_in_use(port, host="localhost"):
         params:
             - port: port number
     """
+    # if port is a string
+    if isinstance(port, str):
+        # convert to int
+        port = int(port)
     # open connection
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # return connection status
