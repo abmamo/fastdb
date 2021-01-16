@@ -1,1 +1,7 @@
 oyaml==1.0
+# tests
+pytest==6.2.1
+pytest-cov==2.10.1
+# dbapi
+psycopg2-binary==2.8.6
+PyMySQL==1.0.2
