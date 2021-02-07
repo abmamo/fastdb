@@ -1,4 +1,4 @@
-# fastdb ![build](https://github.com/abmamo/fastdb/workflows/build/badge.svg?branch=main)
+# fastdb ![test](https://github.com/abmamo/fastdb/workflows/test/badge.svg?branch=main)
 set up & configure mock MySQL & Postgres databases using python + docker (requires docker)
 
 ## quickstarnt
